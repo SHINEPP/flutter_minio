@@ -19,21 +19,21 @@ void main() async {
     pathStyle: true,
   );
 
-  final buckets = await minio.listBuckets();
-  for (var bucket in buckets) {
-    try {
-      print('bucket = $bucket');
-      final region = await minio.getBucketRegion(bucket.name);
-      print('region = $region');
-    } catch (e) {
-      print('e = $e');
-    }
-  }
+  // final buckets = await minio.listBuckets();
+  // for (var bucket in buckets) {
+  //   try {
+  //     print('bucket = $bucket');
+  //     final region = await minio.getBucketRegion(bucket.name);
+  //     print('region = $region');
+  //   } catch (e) {
+  //     print('e = $e');
+  //   }
+  // }
 
   // list objects
   final bucket = 'androidland';
   final region = await minio.getBucketRegion(bucket);
-  final endPoint = '$region.amazonaws.com';
+  final endPoint = 's3-$region.amazonaws.com';
   final newMinio = endPoint == minio.endPoint
       ? minio
       : minio.copy(endPoint: endPoint, region: region);
