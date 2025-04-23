@@ -262,7 +262,7 @@ class MinioClient {
 
     bool pathStyle = minio.pathStyle ?? true;
     if (isAmazonEndpoint(host)) {
-      host = getS3Endpoint(minio.region!);
+      host = getS3Endpoint(minio.region ?? "");
       pathStyle = !isVirtualHostStyle(host, minio.useSSL, bucket);
     }
 
