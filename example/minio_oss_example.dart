@@ -4,18 +4,18 @@ import 'dart:io';
 import 'package:flutter_minio/minio.dart';
 
 void main() async {
-  final file = File('keystore/access_minio.json');
+  final file = File('keystore/access_oss.json');
   final text = await file.readAsString();
   final json = jsonDecode(text);
   print('json = $json');
 
   final minio = Minio(
-    endPoint: '192.168.111.31',
-    port: 9000,
-    useSSL: false,
+    endPoint: 'oss-cn-hangzhou.aliyuncs.com',
+    port: 443,
+    useSSL: true,
     accessKey: json['accessKey'],
     secretKey: json['secretKey'],
-    pathStyle: true,
+    pathStyle: false,
   );
 
   final buckets = await minio.listBuckets();
@@ -30,7 +30,7 @@ void main() async {
   }
 
   final objectStream = minio.listObjects(
-    'video',
+    'aliyun-oa-query-results-1280606198194346-oss-cn-beijing',
   );
   await for (final result in objectStream) {
     for (final name in result.prefixes) {

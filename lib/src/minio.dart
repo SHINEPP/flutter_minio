@@ -286,10 +286,6 @@ class Minio {
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
-    if (region != null) {
-      return region!;
-    }
-
     if (_regionMap.containsKey(bucket)) {
       return _regionMap[bucket]!;
     }
@@ -297,7 +293,7 @@ class Minio {
     final resp = await _client.request(
       method: 'GET',
       bucket: bucket,
-      region: 'us-east-1',
+      region: region ?? 'us-east-1',
       queries: <String, dynamic>{'location': null},
     );
 
