@@ -29,9 +29,15 @@ void main() async {
     }
   }
 
-  final objectStream = minio.listObjects(
-    'aliyun-oa-query-results-1280606198194346-oss-cn-beijing',
-  );
+  // list objects
+  final bucket = 'wonderweather';
+  final region = await minio.getBucketRegion(bucket);
+  final endPoint = '$region.aliyuncs.com';
+  final newMinio = endPoint == minio.endPoint
+      ? minio
+      : minio.copy(endPoint: endPoint, region: region);
+
+  final objectStream = newMinio.listObjects(bucket);
   await for (final result in objectStream) {
     for (final name in result.prefixes) {
       print('name = $name');

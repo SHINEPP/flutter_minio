@@ -58,7 +58,7 @@ class Minio {
   ///
   /// For example:
   /// - play.min.io
-  /// - 1.2.3.4
+  /// - 127.0.0.1
   final String endPoint;
 
   /// TCP/IP port number. This input is optional. Default value set to 80 for HTTP and 443 for HTTPs.
@@ -86,7 +86,30 @@ class Minio {
   final bool enableTrace;
 
   late MinioClient _client;
-  final _regionMap = <String?, String>{};
+  final _bucketRegionMap = <String?, String>{};
+
+  Minio copy({
+    String? endPoint,
+    String? accessKey,
+    String? secretKey,
+    int? port,
+    bool? useSSL,
+    String? sessionToken,
+    String? region,
+    bool? pathStyle,
+    bool? enableTrace,
+  }) =>
+      Minio(
+        endPoint: endPoint ?? this.endPoint,
+        accessKey: accessKey ?? this.accessKey,
+        secretKey: secretKey ?? this.secretKey,
+        port: port ?? this.port,
+        useSSL: useSSL ?? this.useSSL,
+        sessionToken: sessionToken ?? this.sessionToken,
+        region: region ?? this.region,
+        pathStyle: pathStyle ?? this.pathStyle,
+        enableTrace: enableTrace ?? this.enableTrace,
+      );
 
   /// Checks if a bucket exists.
   ///
@@ -286,14 +309,13 @@ class Minio {
   Future<String> getBucketRegion(String bucket) async {
     MinioInvalidBucketNameError.check(bucket);
 
-    if (_regionMap.containsKey(bucket)) {
-      return _regionMap[bucket]!;
+    if (_bucketRegionMap.containsKey(bucket)) {
+      return _bucketRegionMap[bucket]!;
     }
 
     final resp = await _client.request(
       method: 'GET',
       bucket: bucket,
-      region: region ?? 'us-east-1',
       queries: <String, dynamic>{'location': null},
     );
 
@@ -302,12 +324,8 @@ class Minio {
     final node = xml.XmlDocument.parse(resp.body);
 
     var location = node.findAllElements('LocationConstraint').first.text;
-    // if (location == null || location.isEmpty) {
-    if (location.isEmpty) {
-      location = 'us-east-1';
-    }
 
-    _regionMap[bucket] = location;
+    _bucketRegionMap[bucket] = location;
     return location;
   }
 
@@ -478,7 +496,6 @@ class Minio {
   Future<List<Bucket>> listBuckets() async {
     final resp = await _client.request(
       method: 'GET',
-      region: region ?? 'us-east-1',
     );
     validate(resp);
     final bucketsNode =
@@ -759,7 +776,6 @@ class Minio {
     final resp = await _client.request(
       method: 'PUT',
       bucket: bucket,
-      region: region,
       payload: payload,
     );
 
@@ -847,7 +863,6 @@ class Minio {
           'POST',
           postPolicy.formData['bucket'],
           null,
-          region,
           null,
           null,
           null,
@@ -909,7 +924,6 @@ class Minio {
       method,
       bucket,
       object,
-      region,
       resource,
       reqParams,
       {},
@@ -975,7 +989,7 @@ class Minio {
     );
 
     validate(resp, expect: 204);
-    _regionMap.remove(bucket);
+    _bucketRegionMap.remove(bucket);
   }
 
   /// Remove the partially uploaded object.

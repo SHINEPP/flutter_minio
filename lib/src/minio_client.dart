@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:http/http.dart';
 import 'package:flutter_minio/minio.dart';
 import 'package:flutter_minio/src/minio_helpers.dart';
-import 'package:flutter_minio/src/minio_s3.dart';
 import 'package:flutter_minio/src/minio_sign.dart';
 import 'package:flutter_minio/src/utils.dart';
+import 'package:http/http.dart';
 
 class MinioRequest extends StreamedRequest {
   MinioRequest(super.method, super.url, {this.onProgress});
@@ -132,24 +131,16 @@ class MinioClient {
     required String method,
     String? bucket,
     String? object,
-    String? region,
     String? resource,
     dynamic payload = '',
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
     void Function(int)? onProgress,
   }) async {
-    if (bucket != null) {
-      region ??= await minio.getBucketRegion(bucket);
-    }
-
-    region ??= 'us-east-1';
-
     final request = getBaseRequest(
       method,
       bucket,
       object,
-      region,
       resource,
       queries,
       headers,
@@ -169,7 +160,7 @@ class MinioClient {
       request.headers['x-amz-security-token'] = minio.sessionToken!;
     }
 
-    final authorization = signV4(minio, request, date, region);
+    final authorization = signV4(minio, request, date, minio.region ?? '');
     request.headers['authorization'] = authorization;
     logRequest(request);
     final response = await request.send();
@@ -180,7 +171,6 @@ class MinioClient {
     required String method,
     String? bucket,
     String? object,
-    String? region,
     String? resource,
     dynamic payload = '',
     Map<String, dynamic>? queries,
@@ -191,7 +181,6 @@ class MinioClient {
       method: method,
       bucket: bucket,
       object: object,
-      region: region,
       payload: payload,
       resource: resource,
       queries: queries,
@@ -209,7 +198,6 @@ class MinioClient {
     required String method,
     String? bucket,
     String? object,
-    String? region,
     String? resource,
     dynamic payload = '',
     Map<String, dynamic>? queries,
@@ -219,7 +207,6 @@ class MinioClient {
       method: method,
       bucket: bucket,
       object: object,
-      region: region,
       payload: payload,
       resource: resource,
       queries: queries,
@@ -234,7 +221,6 @@ class MinioClient {
     String method,
     String? bucket,
     String? object,
-    String region,
     String? resource,
     Map<String, dynamic>? queries,
     Map<String, String>? headers,
@@ -260,12 +246,7 @@ class MinioClient {
     var host = minio.endPoint.toLowerCase();
     var path = '/';
 
-    bool pathStyle = minio.pathStyle ?? true;
-    if (isAmazonEndpoint(host)) {
-      host = getS3Endpoint(minio.region ?? "");
-      pathStyle = !isVirtualHostStyle(host, minio.useSSL, bucket);
-    }
-
+    final pathStyle = minio.pathStyle ?? true;
     if (!pathStyle) {
       if (bucket != null) host = '$bucket.$host';
       if (object != null) path = '/$object';

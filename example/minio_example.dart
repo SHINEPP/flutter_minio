@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:flutter_minio/minio.dart';
 
 void main() async {
-  final file = File('keystore/access_minio.json');
+  final file = File('keystore/access_minio2.json');
   final text = await file.readAsString();
   final json = jsonDecode(text);
   print('json = $json');
 
   final minio = Minio(
-    endPoint: '192.168.111.31',
+    endPoint: '127.0.0.1',
     port: 9000,
     useSSL: false,
     accessKey: json['accessKey'],

@@ -43,6 +43,10 @@ bool isAmazonEndpoint(String endpoint) {
       endpoint == 's3.cn-north-1.amazonaws.com.cn';
 }
 
+bool isAliyunEndPoint(String endpoint) {
+  return endpoint.endsWith('.aliyuncs.com');
+}
+
 bool isVirtualHostStyle(String endpoint, bool useSSL, String? bucket) {
   if (bucket == null) {
     return false;

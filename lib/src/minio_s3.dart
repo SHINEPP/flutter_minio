@@ -20,3 +20,10 @@ String getS3Endpoint(String region) {
   final endpoint = awsS3Endpoint[region];
   return endpoint ?? 's3.amazonaws.com';
 }
+
+String getOssEndpoint(String host, String region) {
+  if (region.isEmpty) {
+    return host;
+  }
+  return region + '.aliyuncs.com';
+}
