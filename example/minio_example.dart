@@ -11,6 +11,7 @@ void main() async {
 
   final minio = Minio(
     endPoint: '127.0.0.1',
+    region: 'us-east-1',
     port: 9000,
     useSSL: false,
     accessKey: json['accessKey'],

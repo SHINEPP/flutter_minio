@@ -19,6 +19,9 @@ void main() async {
     pathStyle: false,
   );
 
+  final region1 = await minio.getBucketRegion('androidland');
+  print('region1 = $region1');
+
   final buckets = await minio.listBuckets();
   for (var bucket in buckets) {
     try {
