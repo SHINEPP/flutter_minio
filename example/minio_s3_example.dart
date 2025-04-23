@@ -16,11 +16,8 @@ void main() async {
     useSSL: true,
     accessKey: json['accessKey'],
     secretKey: json['secretKey'],
-    pathStyle: false,
+    pathStyle: true,
   );
-
-  final region1 = await minio.getBucketRegion('androidland');
-  print('region1 = $region1');
 
   final buckets = await minio.listBuckets();
   for (var bucket in buckets) {
@@ -34,7 +31,7 @@ void main() async {
   }
 
   // list objects
-  final bucket = 'wonderweather';
+  final bucket = 'androidland';
   final region = await minio.getBucketRegion(bucket);
   final endPoint = '$region.amazonaws.com';
   final newMinio = endPoint == minio.endPoint
