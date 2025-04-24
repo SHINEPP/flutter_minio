@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:flutter_minio/minio.dart';
 
 void main() async {
-  final file = File('keystore/access_minio2.json');
+  final file = File('keystore/access_minio.json');
   final text = await file.readAsString();
   final json = jsonDecode(text);
   print('json = $json');
 
   final minio = Minio(
     endPoint: '127.0.0.1',
-    region: 'us-east-1',
+    region: '',
     port: 9000,
     useSSL: false,
     accessKey: json['accessKey'],
@@ -30,9 +30,7 @@ void main() async {
     }
   }
 
-  final objectStream = minio.listObjects(
-    'video',
-  );
+  final objectStream = minio.listObjects('video');
   await for (final result in objectStream) {
     for (final name in result.prefixes) {
       print('name = $name');
